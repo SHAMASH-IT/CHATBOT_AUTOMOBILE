@@ -1,0 +1,47 @@
+# Python virtual environment
+venv/
+*.env
+*.venv
+
+# Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variable files
+.env
+.env.*
+
+# IDE files (if you use any IDE like VS Code or PyCharm)
+.vscode/
+.idea/
+
+# MacOS Finder attributes
+.DS_Store
+
+# Windows image file thumbnails
+Thumbs.db
+
+# Python wheel distribution files
+*.egg-info/
+dist/
+build/
+
+# PyInstaller
+*.spec
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Coverage reports
+.coverage
+.coverage.*
+*.coveragerc
+
+# Logs
+*.log
+
+#data
+model/
+data/

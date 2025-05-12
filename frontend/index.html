@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Chat Interface</title>
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --light-color: #f8f9fa;
+      --dark-color: #212529;
+      --success-color: #4cc9f0;
+      --text-color: #495057;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f7fb;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: var(--text-color);
+    }
+    
+    #chat-container {
+      width: 100%;
+      max-width: 500px;
+      height: 700px;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    #chat-header {
+      background: var(--primary-color);
+      color: white;
+      padding: 15px 20px;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+    }
+    
+    #chat-header::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background-color: #fff;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    
+    #messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #fafcff;
+    }
+    
+    .message {
+      margin-bottom: 15px;
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: var(--border-radius);
+      line-height: 1.4;
+      position: relative;
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    .user-message {
+      background-color: var(--primary-color);
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 0;
+    }
+    
+    .bot-message {
+      background-color: white;
+      color: var(--text-color);
+      margin-right: auto;
+      border-bottom-left-radius: 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .message-time {
+      display: block;
+      font-size: 11px;
+      opacity: 0.7;
+      margin-top: 5px;
+      text-align: right;
+    }
+    
+    #input-area {
+      padding: 15px;
+      background: white;
+      border-top: 1px solid #e9ecef;
+      display: flex;
+      gap: 10px;
+    }
+    
+    #user-input {
+      flex: 1;
+      margin-left: 5px;
+      margin-bottom: 10px;
+      padding: 12px 15px;
+      border: 1px solid #e9ecef;
+      border-radius: var(--border-radius);
+      font-family: 'Arial', sans-serif;
+      outline: none;
+      width: 370px;
+      transition: border 0.3s;
+    }
+    
+    #user-input:focus {
+      border-color: var(--primary-color);
+    }
+    
+    #send-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    #send-btn:hover {
+      background-color: var(--secondary-color);
+    }
+    
+    .typing-indicator {
+      display: flex;
+      padding: 10px 15px;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      width: fit-content;
+      margin-bottom: 15px;
+    }
+    
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #adb5bd;
+      border-radius: 50%;
+      margin: 0 2px;
+      animation: typingAnimation 1.4s infinite ease-in-out;
+    }
+    
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typingAnimation {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-5px); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      #chat-container {
+        height: 100vh;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="chat-header">Assistant</div>
+    <div id="messages">
+      <div class="message bot-message">
+        Hello! How can I help you today?
+        <span class="message-time">Just now</span>
+      </div>
+    </div>
+    <form id="input-form" class="input-area">
+      <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
+      <button type="submit" id="send-btn">Send</button>
+    </form>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get elements - make sure these IDs match your HTML
+    const form = document.getElementById('input-form');
+    const input = document.getElementById('user-input');
+    const messages = document.getElementById('messages');
+    const sendBtn = document.getElementById('send-btn');
+
+    if (!form || !input || !messages || !sendBtn) {
+      console.error('One or more required elements are missing!');
+      return;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userText = input.value.trim();
+      if (!userText) return;
+      
+      appendMessage('user', userText);
+      input.value = '';
+      sendBtn.disabled = true;
+      
+      showTypingIndicator();
+      
+      try {
+        const response = await fetch('http://localhost:5000/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            question: userText, 
+            car_type: 'Toyota', 
+            car_model: 'Camry' 
+          }),
+        });
+
+        const data = await response.json();
+        removeTypingIndicator();
+        appendMessage('bot', data.response);
+
+        if (data.suggestions) displaySuggestions(data.suggestions);
+        if (data.details?.length > 0) displayDetails(data.details);
+      } catch (error) {
+        console.error('Error:', error);
+        appendMessage('bot', "Sorry, I encountered an error. Please try again.");
+        removeTypingIndicator();
+      } finally {
+        sendBtn.disabled = false;
+      }
+    });
+
+    function appendMessage(sender, text) {
+      const msgElement = document.createElement('div');
+      msgElement.classList.add('message', `${sender}-message`);
+      msgElement.innerHTML = `
+        ${text}
+        <span class="message-time">${new Date().toLocaleTimeString()}</span>
+      `;
+      messages.appendChild(msgElement);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+      const typingElement = document.createElement('div');
+      typingElement.id = 'typing-indicator';
+      typingElement.className = 'typing-indicator';
+      typingElement.innerHTML = `
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      `;
+      messages.appendChild(typingElement);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+      const typingElement = document.getElementById('typing-indicator');
+      if (typingElement) typingElement.remove();
+    }
+
+   function displaySuggestions(suggestions) {
+    const existing = document.querySelector('.suggestions-container');
+    if (existing) existing.remove();
+
+    const container = document.createElement('div');
+    container.className = 'suggestions-container';
+    container.style.display = 'flex';
+    container.style.flexWrap = 'wrap';
+    container.style.gap = '8px';
+    container.style.margin = '10px 0';
+    container.style.padding = '10px';
+    container.style.backgroundColor = '#f8f9fa';
+    container.style.borderRadius = '8px';
+
+    suggestions.forEach(suggestion => {
+        const button = document.createElement('button');
+        button.className = 'suggestion-button';
+        button.textContent = suggestion.text;
+        button.dataset.id = suggestion.id;
+        
+        // Button styling
+        button.style.padding = '8px 16px';
+        button.style.border = 'none';
+        button.style.borderRadius = '20px';
+        button.style.backgroundColor = '#4361ee';
+        button.style.color = 'white';
+        button.style.cursor = 'pointer';
+        button.style.fontSize = '14px';
+        button.style.transition = 'all 0.2s ease';
+        button.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+        
+        // Hover effect
+        button.addEventListener('mouseenter', () => {
+            button.style.backgroundColor = '#3a56d4';
+            button.style.transform = 'translateY(-1px)';
+        });
+        
+        button.addEventListener('mouseleave', () => {
+            button.style.backgroundColor = '#4361ee';
+            button.style.transform = 'translateY(0)';
+        });
+        
+        // Active/click effect
+        button.addEventListener('mousedown', () => {
+            button.style.transform = 'translateY(1px)';
+        });
+        
+        // Disabled state
+        button.addEventListener('click', async () => {
+            button.disabled = true;
+            button.textContent = 'Loading...';
+            button.style.backgroundColor = '#adb5bd';
+            button.style.cursor = 'not-allowed';
+            
+            appendMessage('user', suggestion.text);
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('http://localhost:5000/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        question: suggestion.text, 
+                        suggestion_id: suggestion.id, 
+                        car_type: 'Toyota', 
+                        car_model: 'Camry' 
+                    }),
+                });
+
+                const data = await response.json();
+                removeTypingIndicator();
+                appendMessage('bot', data.response);
+
+                if (data.suggestions) displaySuggestions(data.suggestions);
+                if (data.details?.length > 0) displayDetails(data.details);
+            } catch (error) {
+                console.error('Error:', error);
+                appendMessage('bot', "Sorry, I encountered an error. Please try again.");
+                removeTypingIndicator();
+                button.disabled = false;
+                button.textContent = suggestion.text;
+                button.style.backgroundColor = '#4361ee';
+                button.style.cursor = 'pointer';
+            }
+        });
+
+        container.appendChild(button);
+    });
+
+    messages.appendChild(container);
+    messages.scrollTop = messages.scrollHeight;
+}
+
+    function displayDetails(details) {
+      const container = document.createElement('div');
+      container.className = 'details-container';
+
+      details.forEach(detail => {
+        const element = document.createElement('div');
+        element.className = 'detail-message';
+        element.innerHTML = `
+          <p><strong>Problème:</strong> ${detail.problem || 'N/A'}</p>
+          <p><strong>Kilométrage:</strong> ${detail.kilometrage || 'N/A'}</p>
+          <p><strong>Prix:</strong> ${detail.price || 'N/A'}</p>
+        `;
+        container.appendChild(element);
+      });
+
+      messages.appendChild(container);
+    }
+  });
+  </script>
+</body>
+</html>
