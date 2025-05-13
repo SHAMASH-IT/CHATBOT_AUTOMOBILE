@@ -1,11 +1,15 @@
 from flask import Flask, request, jsonify, session
 from core.qa_engine import search_car_info
 from flask_cors import CORS
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app, resources={r"/chat": {"origins": "http://192.168.0.120:5500"}}) 
 
-app.secret_key = 'chatbot_auto'
+app.secret_key = os.getenv("SECRET_KEY")
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -19,9 +23,9 @@ def chat():
     if car_model:
         session['car_model'] = car_model
 
-    print("Received question:", question)
-    print("Received car type:", car_type)
-    print("Received car model:", car_model)
+    #print("Received question:", question)
+    #print("Received car type:", car_type)
+    #print("Received car model:", car_model)
 
     car_type = car_type or session.get('car_type')
     car_model = car_model or session.get('car_model')

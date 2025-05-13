@@ -45,3 +45,5 @@ build/
 #data
 model/
 data/
+
+.env

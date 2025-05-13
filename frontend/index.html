@@ -172,7 +172,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
     
-    /* Responsive adjustments */
     @media (max-width: 600px) {
       #chat-container {
         height: 100vh;
@@ -198,7 +197,6 @@
 
   <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Get elements - make sure these IDs match your HTML
     const form = document.getElementById('input-form');
     const input = document.getElementById('user-input');
     const messages = document.getElementById('messages');
@@ -306,7 +304,6 @@
         button.style.transition = 'all 0.2s ease';
         button.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
         
-        // Hover effect
         button.addEventListener('mouseenter', () => {
             button.style.backgroundColor = '#3a56d4';
             button.style.transform = 'translateY(-1px)';
@@ -317,12 +314,10 @@
             button.style.transform = 'translateY(0)';
         });
         
-        // Active/click effect
         button.addEventListener('mousedown', () => {
             button.style.transform = 'translateY(1px)';
         });
         
-        // Disabled state
         button.addEventListener('click', async () => {
             button.disabled = true;
             button.textContent = 'Loading...';
