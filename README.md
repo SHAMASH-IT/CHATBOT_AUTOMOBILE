@@ -44,7 +44,7 @@ The application has been developed and primarily tested, but further tuning is n
 
         ```
         venv\Scripts\activate
-        pip install -r requirements.txt # if you have a requirements.txt
+        pip install -r requirements.txt 
         ```
 
     * On macOS and Linux:
@@ -54,15 +54,13 @@ The application has been developed and primarily tested, but further tuning is n
         pip install -r requirements.txt # if you have a requirements.txt
         ```
 
-        (You might need to create a requirements.txt file with the needed libraries, e.g., Flask, sentence-transformers, etc.)
-
 3.  **Create an Environment File:**
 
     * Create a file named `.env` in the project's root directory.
     * Add your secret key to the `.env` file:
 
         ```
-        SECRET_KEY="your_secret_key_here" # Replace "your_secret_key_here" with your actual secret key.
+        SECRET_KEY="your_secret_key_here" # Replace "your_secret_key_here" 
         ```
 
 4.  **Add Model and Data Folders:**
@@ -71,7 +69,7 @@ The application has been developed and primarily tested, but further tuning is n
     * Place the following files in the respective folders:
         * `data/cars.csv`
         * `model/car_index.faiss`
-        * `model/cars_with_text.csv` (The car\_index.faiss and cars\_with\_text.csv files may be provided via a Google Drive link, as mentioned in the original description.)
+        * `model/cars_with_text.csv` (The car\_index.faiss and cars\_with\_text.csv files will be provided via a Google Drive link.)
 
 ## Running the Application
 
@@ -89,3 +87,7 @@ The application has been developed and primarily tested, but further tuning is n
     ```
     python app.py
     ```
+4.  **Access the Chatbot UI:**
+
+    * To access and test the chatbot, open the `index.html` file located in the `frontend` folder.  It is recommended to use a live server (e.g., the Live Server extension in VS Code) to serve the HTML file. If you encounter issues, particularly with the display, try opening the `index.html` file in the Edge browser.
+
