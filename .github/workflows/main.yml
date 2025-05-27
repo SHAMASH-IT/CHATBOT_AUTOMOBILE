@@ -1,0 +1,61 @@
+name: Build, Push, and Deploy
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  SERVER_IP: ${{ secrets.SERVER_IP }}
+  SERVER_USER: ${{ secrets.SERVER_USER }}
+  APP_NAME: chatbot
+ 
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Login to Docker Hub
+      run: echo "$DOCKER_HUB_TOKEN" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
+
+    - name: Build Docker image
+      run: docker build -t $DOCKER_HUB_USERNAME/$APP_NAME:latest .
+
+    - name: Push to Docker Hub
+      run: docker push $DOCKER_HUB_USERNAME/$APP_NAME:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install SSH key
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to Ubuntu Server
+      run: |
+        ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "
+          # Pull the latest image
+          echo '$DOCKER_HUB_TOKEN' | docker login -u '$DOCKER_HUB_USERNAME' --password-stdin
+          docker pull $DOCKER_HUB_USERNAME/$APP_NAME:latest
+          
+          # Stop and remove old container if exists
+          docker stop $APP_NAME || true
+          docker rm $APP_NAME || true
+          
+          # Run new container
+          docker run -d \
+            --name $APP_NAME \
+            --restart unless-stopped \
+            -p 5000:5000 \
+            -e NODE_ENV=production \
+            $DOCKER_HUB_USERNAME/$APP_NAME:latest
+          
+          # Clean up unused images
+          docker image prune -af
+        "
