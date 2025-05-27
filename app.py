@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, resources={r"/chat": {"origins": "http://192.168.0.120:5500"}}) 
+#CORS(app, resources={r"/chat": {"origins": "http://localhost:3000"}})  
 
 app.secret_key = os.getenv("SECRET_KEY")
 
